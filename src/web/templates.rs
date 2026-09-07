@@ -3,8 +3,326 @@ use crate::storage::DatabaseRecordItem;
 pub struct WebTemplates;
 
 impl WebTemplates {
+    pub fn login_page() -> String {
+        r###"<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - JettraRDB Management Console</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --jettra-primary: #f97316;
+            --jettra-bg: #0b1120;
+            --jettra-card: #1e293b;
+            --jettra-border: #334155;
+            --jettra-accent: #ea580c;
+        }
+        body {
+            background-color: var(--jettra-bg);
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 50% 20%, rgba(249, 115, 22, 0.08) 0%, transparent 60%);
+        }
+        .login-card {
+            background-color: var(--jettra-card);
+            border: 1px solid var(--jettra-border);
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            max-width: 440px;
+            width: 100%;
+        }
+        .brand-logo {
+            font-size: 2.75rem;
+            line-height: 1;
+        }
+        .btn-jettra {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border: none;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.75rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-jettra:hover {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+        }
+        .form-control:focus {
+            background-color: #0f172a;
+            border-color: var(--jettra-primary);
+            box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.25);
+            color: #f8fafc;
+        }
+        .form-control {
+            background-color: #0f172a;
+            border: 1px solid var(--jettra-border);
+            color: #f8fafc;
+        }
+        .input-group-text {
+            background-color: #0f172a;
+            border: 1px solid var(--jettra-border);
+            color: #94a3b8;
+        }
+        .badge-preset {
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .badge-preset:hover {
+            opacity: 0.85;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="container p-3">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+                <!-- Branding Header -->
+                <div class="text-center mb-4">
+                    <div class="brand-logo mb-2">🦀</div>
+                    <h2 class="fw-bold mb-1 text-white">Jettra<span style="color: var(--jettra-primary);">RDB</span></h2>
+                    <p class="text-secondary small mb-0">Consola de Administración Web (JettraFlux)</p>
+                    <span class="badge bg-warning text-dark mt-1" style="font-size: 0.7rem;">RUST v1.0 • Multi-Engine</span>
+                </div>
+
+                <!-- Main Login Card -->
+                <div id="loginCard" class="card login-card p-4 p-md-5">
+                    <h4 class="fw-semibold text-white mb-2"><i class="bi bi-box-arrow-in-right text-warning me-2"></i>Iniciar Sesión</h4>
+                    <p class="text-secondary small mb-4">Ingrese sus credenciales de acceso al motor de datos.</p>
+
+                    <!-- Alert Box -->
+                    <div id="loginAlert" class="alert alert-danger d-none d-flex align-items-center py-2 px-3 small mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2 fs-5"></i>
+                        <div id="loginAlertMsg">Credenciales inválidas.</div>
+                    </div>
+
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label for="username" class="form-label text-secondary small fw-bold">USUARIO</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                <input type="text" id="username" class="form-control" placeholder="Ej. admin" required autocomplete="username" autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label text-secondary small fw-bold">CONTRASEÑA</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                                <input type="password" id="password" class="form-control" placeholder="Contraseña" required autocomplete="current-password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordBtn" onclick="togglePassword()" title="Mostrar/ocultar contraseña">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnLogin" class="btn btn-jettra w-100 mb-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                        </button>
+                    </form>
+
+                    <!-- Quick Preset Badges -->
+                    <div class="border-top border-secondary pt-3 mt-2">
+                        <div class="text-secondary small mb-2"><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Credenciales del sistema:</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-dark border border-secondary text-light p-2 badge-preset" onclick="quickFill('admin', 'admin')" title="Haga clic para autocompletar">
+                                <i class="bi bi-shield-lock text-info me-1"></i><strong>admin</strong> / admin
+                            </span>
+                            <span class="badge bg-dark border border-secondary text-light p-2 badge-preset" onclick="quickFill('super-user', 'superUserZ')" title="Haga clic para autocompletar">
+                                <i class="bi bi-person-badge text-danger me-1"></i><strong>super-user</strong> / superUserZ
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Change Card (Triggered if requires_password_change is true) -->
+                <div id="changePwdCard" class="card login-card p-4 p-md-5 d-none">
+                    <h4 class="fw-semibold text-white mb-2"><i class="bi bi-shield-exclamation text-warning me-2"></i>Actualización Requerida</h4>
+                    <p class="text-secondary small mb-4">Esta cuenta requiere configurar una nueva contraseña antes de continuar.</p>
+
+                    <div id="changePwdAlert" class="alert alert-danger d-none d-flex align-items-center py-2 px-3 small mb-3" role="alert">
+                        <i class="bi bi-exclamation-circle-fill flex-shrink-0 me-2 fs-5"></i>
+                        <div id="changePwdAlertMsg">Error al cambiar contraseña.</div>
+                    </div>
+
+                    <form id="changePwdForm" onsubmit="handleChangePassword(event)">
+                        <input type="hidden" id="changePwdUsername">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold">CONTRASEÑA ACTUAL</label>
+                            <input type="password" id="changePwdOld" class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="changePwdNew" class="form-label text-secondary small fw-bold">NUEVA CONTRASEÑA</label>
+                            <input type="password" id="changePwdNew" class="form-control" placeholder="Mínimo 4 caracteres" required minlength="4">
+                        </div>
+                        <div class="mb-4">
+                            <label for="changePwdConfirm" class="form-label text-secondary small fw-bold">CONFIRMAR NUEVA CONTRASEÑA</label>
+                            <input type="password" id="changePwdConfirm" class="form-control" placeholder="Repita la nueva contraseña" required minlength="4">
+                        </div>
+                        <button type="submit" id="btnChangePwd" class="btn btn-jettra w-100 mb-2">
+                            <i class="bi bi-shield-check me-2"></i>Actualizar y Entrar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4 text-secondary small">
+                    <span>JettraRDB &bull; Tokio Async &bull; Raft Consensus Engine</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (async function checkExistingToken() {
+            const token = localStorage.getItem("jettra_token");
+            if (token) {
+                try {
+                    const res = await fetch("/api/auth/validate", {
+                        headers: { "Authorization": "Bearer " + token }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.valid) {
+                            window.location.replace("/dashboard");
+                        }
+                    }
+                } catch (e) {
+                    console.error("Token verification error:", e);
+                }
+            }
+        })();
+
+        function quickFill(user, pass) {
+            document.getElementById("username").value = user;
+            document.getElementById("password").value = pass;
+            document.getElementById("password").focus();
+        }
+
+        function togglePassword() {
+            const pwd = document.getElementById("password");
+            const icon = document.getElementById("toggleIcon");
+            if (pwd.type === "password") {
+                pwd.type = "text";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            } else {
+                pwd.type = "password";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            }
+        }
+
+        async function handleLogin(e) {
+            if (e) e.preventDefault();
+            const alertBox = document.getElementById("loginAlert");
+            const alertMsg = document.getElementById("loginAlertMsg");
+            const btn = document.getElementById("btnLogin");
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            alertBox.classList.add("d-none");
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verificando...';
+
+            try {
+                const response = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: username, password: password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Credenciales incorrectas o usuario no encontrado");
+                }
+
+                localStorage.setItem("jettra_token", data.token);
+                localStorage.setItem("jettra_user", data.user);
+
+                if (data.requires_password_change) {
+                    document.getElementById("loginCard").classList.add("d-none");
+                    document.getElementById("changePwdCard").classList.remove("d-none");
+                    document.getElementById("changePwdUsername").value = data.user;
+                    document.getElementById("changePwdOld").value = password;
+                    document.getElementById("changePwdNew").focus();
+                } else {
+                    window.location.replace("/dashboard");
+                }
+            } catch (err) {
+                alertMsg.textContent = err.message;
+                alertBox.classList.remove("d-none");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión';
+            }
+        }
+
+        async function handleChangePassword(e) {
+            if (e) e.preventDefault();
+            const alertBox = document.getElementById("changePwdAlert");
+            const alertMsg = document.getElementById("changePwdAlertMsg");
+            const btn = document.getElementById("btnChangePwd");
+
+            const username = document.getElementById("changePwdUsername").value.trim();
+            const old_password = document.getElementById("changePwdOld").value;
+            const new_password = document.getElementById("changePwdNew").value;
+            const confirm_password = document.getElementById("changePwdConfirm").value;
+
+            alertBox.classList.add("d-none");
+
+            if (new_password !== confirm_password) {
+                alertMsg.textContent = "Las nuevas contraseñas no coinciden.";
+                alertBox.classList.remove("d-none");
+                return;
+            }
+            if (new_password.length < 4) {
+                alertMsg.textContent = "La nueva contraseña debe tener al menos 4 caracteres.";
+                alertBox.classList.remove("d-none");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Guardando...';
+
+            try {
+                const response = await fetch("/api/auth/change-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: username, old_password: old_password, new_password: new_password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Error al actualizar la contraseña");
+                }
+
+                window.location.replace("/dashboard");
+            } catch (err) {
+                alertMsg.textContent = err.message;
+                alertBox.classList.remove("d-none");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-shield-check me-2"></i> Actualizar y Entrar';
+            }
+        }
+    </script>
+</body>
+</html>"###.to_string()
+    }
+
     pub fn layout(title: &str, active_nav: &str, content: &str) -> String {
-        format!(r#"<!DOCTYPE html>
+        format!(r###"<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -77,6 +395,14 @@ impl WebTemplates {
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="text-secondary small d-none d-md-inline"><i class="bi bi-hdd-network text-success"></i> Cluster: Online</span>
             <a href="/swagger-ui" class="btn btn-sm btn-outline-warning"><i class="bi bi-file-code"></i> OpenAPI / Swagger</a>
+            <div id="navUserSection" class="d-flex align-items-center gap-2 border-start border-secondary ps-3">
+                <span class="badge bg-dark border border-secondary text-light px-2 py-1">
+                    <i class="bi bi-person-circle text-warning me-1"></i><span id="navUserText">admin</span>
+                </span>
+                <button onclick="logout()" class="btn btn-sm btn-outline-danger" title="Cerrar sesión">
+                    <i class="bi bi-box-arrow-right me-1"></i>Salir
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -135,8 +461,28 @@ impl WebTemplates {
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function() {{
+            const token = localStorage.getItem("jettra_token");
+            const user = localStorage.getItem("jettra_user");
+            if (!token) {{
+                window.location.replace("/login");
+                return;
+            }}
+            const userEl = document.getElementById("navUserText");
+            if (userEl && user) {{
+                userEl.textContent = user;
+            }}
+        }})();
+
+        function logout() {{
+            localStorage.removeItem("jettra_token");
+            localStorage.removeItem("jettra_user");
+            window.location.replace("/login");
+        }}
+    </script>
 </body>
-</html>"#,
+</html>"###,
             title = title,
             nav_dashboard = if active_nav == "dashboard" { "active" } else { "" },
             nav_databases = if active_nav == "databases" { "active" } else { "" },

@@ -10,7 +10,7 @@ use serde::Deserialize;
 use serde_json::json;
 use tower_http::cors::{Any, CorsLayer};
 
-use super::auth_controller::{change_password_handler, login_handler};
+use super::auth_controller::{change_password_handler, login_handler, validate_token_handler};
 use super::backup_controller::backup_handler;
 use super::document_controller::{
     delete_document_handler, get_document_handler, get_document_history_handler,
@@ -60,6 +60,7 @@ pub fn create_router(ctx: ServerContext) -> Router {
 
     let auth_routes = Router::new()
         .route("/login", post(login_handler))
+        .route("/validate", get(validate_token_handler))
         .route("/change-password", post(change_password_handler))
         .with_state(ctx.app_state.auth.clone());
 
@@ -90,6 +91,7 @@ pub fn create_router(ctx: ServerContext) -> Router {
 
     Router::new()
         // Web Console HTML routes
+        .route("/login", get(|| async { Html(WebTemplates::login_page()) }))
         .route("/", get({
             let ctx = ctx_for_web.clone();
             move || async move {

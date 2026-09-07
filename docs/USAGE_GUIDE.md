@@ -50,6 +50,22 @@ export TOKEN="d2f47d4e-e1bb-45e3-9cf6-cbfa1e7fa890"
 ```
 
 ### 1.2 Change Password
+### 1.2 Validate Active Token
+Verify the validity of a Bearer token:
+```bash
+curl -s -X GET http://localhost:8086/api/auth/validate \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Response:**
+```json
+{
+  "user": "admin",
+  "valid": true
+}
+```
+
+### 1.3 Change Password
 ```bash
 curl -X POST http://localhost:8086/api/auth/change-password \
   -H "Content-Type: application/json" \
@@ -465,6 +481,13 @@ JettraRDB embeds the complete JettraFlux Web UI directly inside the binary. Acce
 - **`/` or `/dashboard`**: Real-time KPI summary cards, throughput, 9 engines layout.
 - **`/databases`**: Interactive visual database explorer and drop actions.
 - **`/engines`**: Interactive 9 engines workbench.
+- **`/login` (Interactive Web Authentication Portal)**:
+  - Secure, dark-themed login interface with username and password verification.
+  - Password visibility toggle (`bi-eye`).
+  - Quick-preset convenience badges for default accounts (`admin` / `admin`, `super-user` / `superUserZ`).
+  - Immediate password update prompt when `requires_password_change: true`.
+  - Automatic session guard across all console pages that redirects unauthenticated requests to `/login`.
+  - Active user indicator (`👤 admin`) and **Salir** (Logout) button in the top navbar.
 - **`/` or `/dashboard`**: Real-time KPI summary cards, active databases counter, memory latency (0ms Zero GC), 9 multi-model engines layout.
 - **`/databases`**: Visual database administration:
   - **"Nueva Base de Datos"**: Interactive modal to create isolated database partitions on demand.

@@ -61,3 +61,36 @@ pub async fn change_password_handler(
     }
 }
 
+pub async fn validate_token_handler(
+    State(auth): State<Arc<AuthManager>>,
+    headers: axum::http::HeaderMap,
+) -> impl IntoResponse {
+    let auth_header = headers
+        .get("authorization")
+        .and_then(|h| h.to_str().ok());
+
+    let token = match auth_header {
+        Some(h) if h.starts_with("Bearer ") => &h[7..],
+        Some(h) => h,
+        None => {
+            return (
+                StatusCode::UNAUTHORIZED,
+                Json(json!({ "valid": false, "error": "Missing authorization header" })),
+            );
+        }
+    };
+
+    if auth.validate_token(token) {
+        let user = auth.get_user_from_token(token).unwrap_or_default();
+        (
+            StatusCode::OK,
+            Json(json!({ "valid": true, "user": user })),
+        )
+    } else {
+        (
+            StatusCode::UNAUTHORIZED,
+            Json(json!({ "valid": false, "error": "Invalid or expired token" })),
+        )
+    }
+}
+
