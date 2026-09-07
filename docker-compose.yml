@@ -1,0 +1,81 @@
+version: '3.8'
+
+networks:
+  jettrardb-net:
+    driver: bridge
+
+volumes:
+  rdb-node1-data:
+  rdb-node2-data:
+  rdb-node3-data:
+
+services:
+  jettrardb-node1:
+    image: jettra/rdb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jettrardb-node1
+    environment:
+      - JETTRA_NODE_ID=node1
+      - JETTRA_DATA_DIR=/data/node1
+      - JETTRA_DB_PORT=6086
+      - JETTRA_GUI_PORT=60050
+      - JETTRA_GRPC_PORT=60051
+      - JETTRA_CLUSTER_PEERS=jettrardb-node1:60051,jettrardb-node2:60051,jettrardb-node3:60051
+    ports:
+      - "6086:6086"    # REST Database API
+      - "60050:60050"  # JettraFlux Web Console
+      - "60051:60051"  # Raft Consensus
+    volumes:
+      - rdb-node1-data:/data/node1
+    networks:
+      - jettrardb-net
+    restart: unless-stopped
+
+  jettrardb-node2:
+    image: jettra/rdb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jettrardb-node2
+    environment:
+      - JETTRA_NODE_ID=node2
+      - JETTRA_DATA_DIR=/data/node2
+      - JETTRA_DB_PORT=6086
+      - JETTRA_GUI_PORT=60050
+      - JETTRA_GRPC_PORT=60051
+      - JETTRA_CLUSTER_PEERS=jettrardb-node1:60051,jettrardb-node2:60051,jettrardb-node3:60051
+    ports:
+      - "8087:6086"    # REST Database API
+      - "50052:60050"  # JettraFlux Web Console
+      - "50053:60051"  # Raft Consensus
+    volumes:
+      - rdb-node2-data:/data/node2
+    networks:
+      - jettrardb-net
+    restart: unless-stopped
+
+  jettrardb-node3:
+    image: jettra/rdb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jettrardb-node3
+    environment:
+      - JETTRA_NODE_ID=node3
+      - JETTRA_DATA_DIR=/data/node3
+      - JETTRA_DB_PORT=6086
+      - JETTRA_GUI_PORT=60050
+      - JETTRA_GRPC_PORT=60051
+      - JETTRA_CLUSTER_PEERS=jettrardb-node1:60051,jettrardb-node2:60051,jettrardb-node3:60051
+    ports:
+      - "8088:6086"    # REST Database API
+      - "50054:60050"  # JettraFlux Web Console
+      - "50055:60051"  # Raft Consensus
+    volumes:
+      - rdb-node3-data:/data/node3
+    networks:
+      - jettrardb-net
+    restart: unless-stopped
+

@@ -1,0 +1,27 @@
+# Ultra-compact static musl container for JettraRDB
+FROM rust:alpine AS builder
+RUN apk add --no-cache musl-dev
+
+WORKDIR /usr/src/jettrardb
+COPY Cargo.toml ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release || true
+
+COPY . .
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# Runtime Stage: Tiny Alpine image (< 20MB)
+FROM alpine:3.21
+WORKDIR /opt/jettrardb
+
+RUN apk add --no-cache ca-certificates tzdata
+
+COPY --from=builder /usr/src/jettrardb/target/x86_64-unknown-linux-musl/release/jettrardb /opt/jettrardb/jettrardb
+COPY jettrardb.properties /opt/jettrardb/jettrardb.properties
+
+EXPOSE 8086 50050 50051
+
+ENV JETTRA_DATA_DIR=/data
+VOLUME ["/data"]
+
+ENTRYPOINT ["/opt/jettrardb/jettrardb"]
+
