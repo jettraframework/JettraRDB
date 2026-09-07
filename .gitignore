@@ -1,0 +1,23 @@
+# Rust build artifacts
+/target/
+target/
+**/*.rs.bk
+*.bk
+
+# Generated databases and runtime storage
+data/
+databases/
+system/
+*.jettra
+wal.jettra
+data_*.jettra
+jettra_backup_*
+
+# IDEs and OS metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+*.log
